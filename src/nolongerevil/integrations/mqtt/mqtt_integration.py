@@ -571,13 +571,15 @@ class MqttIntegration(BaseIntegration):
             retain=True,
         )
 
-        # Fan mode
-        fan_mode = get_fan_mode(device_values)
-        await client.publish(
-            f"{prefix}/{serial}/ha/fan_mode",
-            fan_mode,
-            retain=True,
-        )
+        # Fan mode - only publish when the device has a fan
+        has_fan = shared_values.get("has_fan", device_values.get("has_fan", False))
+        if has_fan:
+            fan_mode = get_fan_mode(device_values)
+            await client.publish(
+                f"{prefix}/{serial}/ha/fan_mode",
+                fan_mode,
+                retain=True,
+            )
 
         # Preset mode (requires structure bucket for authoritative away state)
         structure_values = self._get_structure_values(serial)
