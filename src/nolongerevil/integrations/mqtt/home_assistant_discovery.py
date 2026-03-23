@@ -116,7 +116,7 @@ def build_climate_discovery_payload(
         "optimistic": False,
         # QoS
         "qos": 1,
-    }
+    })
 
     # Mode-specific temperature topics
     for topic in MODE_TEMPERATURE_TOPICS.get(ha_mode, ()):
