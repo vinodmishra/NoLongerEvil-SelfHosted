@@ -88,6 +88,35 @@ def extract_serial_from_custom_header(request: web.Request) -> str | None:
     return sanitize_serial(serial_header)
 
 
+def extract_basic_auth_password(auth_header: str | None) -> str | None:
+    """Extract password from HTTP Basic Auth header.
+
+    Nest devices send their api_key as the password in Basic Auth.
+    This credential is needed to configure the device via its local HTTP API
+    (POST /cgi-bin/api/settings with api_key field).
+
+    Args:
+        auth_header: Authorization header value
+
+    Returns:
+        Password string or None if not found/invalid
+    """
+    if not auth_header:
+        return None
+    if not auth_header.startswith("Basic "):
+        return None
+    try:
+        encoded = auth_header[6:]
+        decoded = base64.b64decode(encoded).decode("utf-8")
+        if ":" not in decoded:
+            return None
+        # Split on first colon only; password may contain colons
+        password = decoded.split(":", 1)[1]
+        return password if password else None
+    except (ValueError, UnicodeDecodeError):
+        return None
+
+
 def extract_serial_from_client_id(client_id: str | None) -> str | None:
     """Extract device serial from X-nl-client-id header.
 

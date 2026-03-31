@@ -18,6 +18,8 @@ A self-hosted server implementation for Nest thermostats, written in Python. Thi
 - **Weather Service**: Proxied weather data with caching to reduce API calls
 - **MQTT Integration**: Publish device state to MQTT brokers for Home Assistant integration
 - **Home Assistant Auto-Discovery**: Automatic device discovery in Home Assistant via MQTT
+- **Network Scanner**: Scan your local subnet to discover unconfigured Nest devices and point them at this server in one click
+- **Device Credentials**: Captures and displays each thermostat's api_key in the dashboard for easy local API configuration
 - **API Key Authentication**: Secure control API access with API keys
 - **Device Sharing**: Share device access with other users
 - **Persistent Storage**: SQLite3 database for reliable state persistence
@@ -45,8 +47,8 @@ A self-hosted server implementation for Nest thermostats, written in Python. Thi
    - **Reboot** the thermostat after the server is running (press and hold the display until the screen goes black, wait a few seconds, then press it again until the Nest logo appears)
 
 The server will be available at:
-- **Device API**: Port 7001 (HTTP) or 443 (HTTPS)
-- **Control API**: Port 8081
+- **Device API**: Port 8000
+- **Control API**: Port 8082
 
 ### Using Python Directly
 
@@ -83,9 +85,9 @@ For **Docker Compose**, edit the `environment:` block in `docker-compose.yml`. F
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `API_ORIGIN` | `http://localhost` | Base URL for thermostat connections |
-| `SERVER_PORT` | `443` | Port for thermostat connections |
-| `CONTROL_PORT` | `8081` | Port for control API |
+| `API_ORIGIN` | `http://localhost:8000` | Base URL for thermostat connections — set to your LAN IP, e.g. `http://192.168.1.100:8000` |
+| `SERVER_PORT` | `8000` | Port for thermostat connections |
+| `CONTROL_PORT` | `8082` | Port for control API |
 | `CERT_DIR` | - | Directory containing TLS certificates |
 | `ENTRY_KEY_TTL_SECONDS` | `3600` | Pairing code expiration (seconds) |
 | `REQUIRE_DEVICE_PAIRING` | `false` | Require entry key pairing before device transport access |
@@ -135,6 +137,8 @@ These endpoints are for dashboards and automation:
 | `/status` | GET | Get device status |
 | `/api/devices` | GET | List all devices |
 | `/api/stats` | GET | Server statistics |
+| `/api/scan-network` | POST | Scan local /24 subnet for Nest devices |
+| `/api/configure-nest` | POST | Point a discovered Nest device at this server |
 | `/notify-device` | POST | Force notification to subscribers |
 | `/health` | GET | Health check |
 
@@ -142,43 +146,49 @@ These endpoints are for dashboards and automation:
 
 **Set Temperature:**
 ```bash
-curl -X POST http://localhost:8081/command \
+curl -X POST http://localhost:8082/command \
   -H "Content-Type: application/json" \
   -d '{"serial": "YOUR_SERIAL", "command": "set_temperature", "value": 21.5}'
 ```
 
 **Set Mode:**
 ```bash
-curl -X POST http://localhost:8081/command \
+curl -X POST http://localhost:8082/command \
   -H "Content-Type: application/json" \
   -d '{"serial": "YOUR_SERIAL", "command": "set_mode", "value": "heat"}'
 ```
 
 **Set Away Mode:**
 ```bash
-curl -X POST http://localhost:8081/command \
+curl -X POST http://localhost:8082/command \
   -H "Content-Type: application/json" \
   -d '{"serial": "YOUR_SERIAL", "command": "set_away", "value": true}'
 ```
 
 **Set Fan:**
 ```bash
-curl -X POST http://localhost:8081/command \
+curl -X POST http://localhost:8082/command \
   -H "Content-Type: application/json" \
   -d '{"serial": "YOUR_SERIAL", "command": "set_fan", "value": "on"}'
 ```
 
 ## Home Assistant Integration
 
-### Via MQTT Auto-Discovery
+### Home Assistant Add-on (Recommended)
 
-1. Enable MQTT integration in your configuration
-2. The server will automatically publish Home Assistant discovery messages
-3. Devices will appear in Home Assistant under the "Climate" integration
+The easiest way to run NoLongerEvil with Home Assistant is the official add-on, which handles configuration, MQTT auto-discovery, and ingress automatically.
 
-### Manual Configuration
+👉 **[NoLongerEvil Home Assistant Add-on](https://github.com/codykociemba/NoLongerEvil-HomeAssistant)**
 
-If you prefer manual configuration, add to your `configuration.yaml`:
+### Via MQTT (Manual / Self-Hosted)
+
+If you are running the server standalone (Docker or Python), point it at your MQTT broker and Home Assistant will auto-discover the devices:
+
+1. Set `MQTT_HOST` (and optionally `MQTT_USER` / `MQTT_PASSWORD`) in your environment.
+2. The server publishes Home Assistant discovery messages automatically on startup.
+3. Devices appear in Home Assistant under the **Climate** integration.
+
+If you prefer fully manual MQTT configuration, add to your `configuration.yaml`:
 
 ```yaml
 climate:
@@ -205,9 +215,10 @@ Build and run the Docker image:
 ```bash
 docker build -t nolongerevil-server .
 docker run -d \
-  -p 7001:80 \
-  -p 8081:8081 \
-  -v nolongerevil-data:/app/data \
+  -p 8000:8000 \
+  -p 8082:8082 \
+  -e API_ORIGIN=http://192.168.1.100:8000 \
+  -v nolongerevil-data:/data \
   nolongerevil-server
 ```
 

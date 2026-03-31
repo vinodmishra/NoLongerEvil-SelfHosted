@@ -8,6 +8,7 @@ from nolongerevil.services.subscription_manager import SubscriptionManager
 from nolongerevil.services.weather_service import WeatherService
 
 from .entry import create_entry_routes
+from .info import create_info_routes
 from .passphrase import create_passphrase_routes
 from .ping import create_ping_routes
 from .pro_info import create_pro_info_routes
@@ -33,6 +34,7 @@ def setup_nest_routes(
         device_availability: Device availability service
     """
     create_entry_routes(app)
+    create_info_routes(app)
     create_ping_routes(app)
     create_passphrase_routes(app, state_service)
     create_pro_info_routes(app)
@@ -44,6 +46,7 @@ def setup_nest_routes(
 __all__ = [
     "setup_nest_routes",
     "create_entry_routes",
+    "create_info_routes",
     "create_passphrase_routes",
     "create_ping_routes",
     "create_pro_info_routes",

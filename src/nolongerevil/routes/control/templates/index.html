@@ -3,38 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NoLongerEvil</title>
+  <title>No Longer Evil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
+  <link rel="icon" type="image/png" href="/nle-favicon.png">
   <style>
     :root {
-      --bg: #f0f2f5;
-      --card: #fff;
-      --text: #1a1a1a;
-      --text2: #6b7280;
-      --text3: #9ca3af;
-      --border: #e5e7eb;
-      --hover: #f9fafb;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
-      --radius: 14px;
-      --accent: #10b981;
+      /* NLE brand palette — light mode */
+      --accent: #0EA5E9;
+      --accent-hover: #0284C7;
+      --accent-text: #ffffff;
+
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text2: #475569;
+      --text3: #94a3b8;
+      --border: #e2e8f0;
+      --hover: #f1f5f9;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+      --radius: 12px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #111827;
-        --card: #1f2937;
-        --text: #f3f4f6;
-        --text2: #9ca3af;
-        --text3: #6b7280;
-        --border: #374151;
-        --hover: #283040;
-        --shadow: 0 1px 3px rgba(0,0,0,0.2);
-        --shadow-lg: 0 4px 12px rgba(0,0,0,0.3);
+        --accent: #38BDF8;
+        --accent-hover: #0EA5E9;
+        --accent-text: #0f172a;
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --text2: #94a3b8;
+        --text3: #64748b;
+        --border: #334155;
+        --hover: #1e293b;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+        --shadow-lg: 0 4px 6px rgba(0,0,0,0.4);
       }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       max-width: 720px;
@@ -48,7 +58,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 20px;
     }
-    .header h1 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .header h1 { font-size: 22px; font-weight: 700; }
     .btn-icon {
       background: none; border: none; cursor: pointer;
       color: var(--text3); padding: 6px; border-radius: 8px;
@@ -89,11 +99,46 @@
     .btn-primary {
       padding: 8px 16px; font-size: 14px; font-weight: 500;
       border: none; border-radius: 8px; cursor: pointer;
-      background: var(--accent); color: white;
+      background: var(--accent); color: var(--accent-text);
     }
-    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:hover { background: var(--accent-hover); }
     .msg-success { color: var(--accent); font-size: 14px; margin-top: 6px; }
     .msg-error { color: #dc2626; font-size: 14px; margin-top: 6px; }
+
+    /* Connection info row in setup card */
+    .setup-info-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .setup-info-label {
+      font-size: 12px; font-weight: 600; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0;
+    }
+    .setup-info-value {
+      font-family: 'Geist Mono', 'SF Mono', SFMono-Regular, Menlo, monospace;
+      font-size: 12px; color: var(--text2);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 8px;
+      flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .btn-copy {
+      flex-shrink: 0; background: none; border: 1px solid var(--border);
+      border-radius: 6px; cursor: pointer; color: var(--text3);
+      padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-copy:hover { background: var(--hover); color: var(--text2); border-color: var(--text3); }
+    .pairing-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .pairing-badge.open { background: rgba(14,165,233,0.1); color: #0284c7; }
+    .pairing-badge.secure { background: rgba(168,85,247,0.1); color: #7c3aed; }
+    @media (prefers-color-scheme: dark) {
+      .pairing-badge.open { background: rgba(56,189,248,0.12); color: #38bdf8; }
+      .pairing-badge.secure { background: rgba(168,85,247,0.15); color: #c084fc; }
+    }
 
     /* Device list */
     .devices { display: flex; flex-direction: column; gap: 10px; }
@@ -119,7 +164,7 @@
     .online-dot.off { background: #9ca3af; }
     .card-identity h3 { font-size: 17px; font-weight: 650; letter-spacing: -0.2px; }
     .card-serial {
-      font-family: 'SF Mono', SFMono-Regular, Menlo, monospace;
+      font-family: 'Geist Mono', 'SF Mono', SFMono-Regular, Menlo, monospace;
       font-size: 10px; color: var(--text3); letter-spacing: 0.3px;
       margin-top: 1px;
     }
@@ -130,7 +175,7 @@
       padding-top: 2px;
     }
     .card-meta .mdi { font-size: 15px; }
-    /* HVAC card glow effects — option D: colored border + soft outer */
+    /* HVAC card glow effects */
     .device-card { position: relative; overflow: hidden; transition: all 0.6s ease; border: 1.5px solid transparent; }
     .device-card.glow-heat {
       border-color: rgba(249, 115, 22, 0.45);
@@ -356,7 +401,6 @@
       font-size: 9px; font-weight: 600; color: var(--text3);
       margin-left: 2px; letter-spacing: 0.2px;
     }
-    /* .fan-row removed — fan merged into card-row-controls */
     .ttt-label {
       font-size: 11px; color: var(--text2); text-align: center;
       margin-top: 1px; font-weight: 600; letter-spacing: 0.2px;
@@ -381,7 +425,7 @@
     .empty-state {
       text-align: center; padding: 48px 20px; color: var(--text3);
     }
-    .empty-state .mdi { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.3; }
+    .empty-state img { width: 64px; height: 64px; display: block; margin: 0 auto 12px; opacity: 0.35; }
 
     /* Schedule section */
     .sched-toggle {
@@ -509,13 +553,59 @@
     .sched-pop-val:focus { background: var(--bg); border-radius: 4px; }
     .sched-pop-unit { font-size: 10px; color: var(--text3); margin-right: 2px; }
     .sched-pop-sep { color: var(--text3); font-size: 10px; margin: 0 2px; }
+
+    /* Nest network scan panel */
+    .scan-panel { margin-top: 8px; }
+    .scan-device-row {
+      display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap;
+      padding: 8px 0; border-top: 1px solid var(--border);
+    }
+    .scan-device-row:first-child { border-top: none; }
+    .scan-device-ip {
+      font-family: 'Geist Mono', 'SF Mono', SFMono-Regular, Menlo, monospace;
+      font-size: 12px; color: var(--text2); min-width: 110px; flex-shrink: 0; padding-top: 3px;
+    }
+    .scan-device-info { flex: 1; min-width: 0; }
+    .scan-device-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .scan-device-url {
+      font-family: 'Geist Mono', 'SF Mono', SFMono-Regular, Menlo, monospace;
+      font-size: 11px; color: var(--text3);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
+    }
+    .scan-device-actions { flex-shrink: 0; display: flex; gap: 6px; align-items: flex-start; }
+    .scan-status { font-size: 12px; padding-top: 3px; display: flex; align-items: center; gap: 4px; }
+    .scan-status.ok { color: #10b981; }
+    .scan-status.err { color: #dc2626; }
+    .scan-serial-row { margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .scan-serial-input {
+      padding: 4px 8px; font-size: 13px;
+      font-family: 'Geist Mono', 'SF Mono', SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase; letter-spacing: 1px;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg); color: var(--text); outline: none; width: 190px;
+    }
+    .scan-serial-input:focus { border-color: var(--accent); }
+    .btn-secondary {
+      padding: 6px 12px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+      background: var(--bg); color: var(--text2); transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: var(--hover); border-color: var(--text3); color: var(--text); }
+    .btn-scan {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; font-size: 13px; font-weight: 500;
+      border: none; border-radius: 8px; cursor: pointer;
+      background: var(--accent); color: var(--accent-text); transition: background 0.15s;
+    }
+    .btn-scan:hover { background: var(--accent-hover); }
+    .btn-scan:disabled { opacity: 0.6; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1><i class="mdi mdi-thermostat"></i> NoLongerEvil</h1>
+    <h1>No Longer Evil</h1>
     <div style="display:flex;gap:4px">
-      <button onclick="loadDevices()" class="btn-icon" title="Refresh"><i class="mdi mdi-refresh"></i></button>
+      <button onclick="loadDevices(true)" class="btn-icon" title="Refresh (clears scan results)"><i class="mdi mdi-refresh"></i></button>
     </div>
   </div>
 
@@ -524,16 +614,36 @@
   </button>
   <div class="setup-content" id="setupContent">
     <div class="setup-card">
-      <h2>Setup</h2>
-      <ol>
-        <li>On your Nest thermostat, go to <strong>Settings → Nest App</strong></li>
-        <li>Enter the 7-character code shown on screen</li>
-      </ol>
-      <form id="registerForm" style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="entryCode" placeholder="ABC-1234" maxlength="8" class="form-input" required />
-        <button type="submit" class="btn-primary">Register</button>
-      </form>
-      <div id="registerResult"></div>
+      <h2>Connection Info</h2>
+      <div class="setup-info-row">
+        <span class="setup-info-label">Cloud Register URL</span>
+        <span class="setup-info-value" id="cloudregisterurl">Loading...</span>
+        <button class="btn-copy" onclick="copyCloudUrl()" title="Copy to clipboard"><i class="mdi mdi-content-copy"></i> Copy</button>
+      </div>
+      <div class="setup-info-row" style="margin-bottom: 16px;">
+        <span class="setup-info-label">Device Pairing</span>
+        <span id="pairingBadge"></span>
+        <span style="font-size:12px;color:var(--text3)" id="pairingHint"></span>
+      </div>
+      <div style="margin-top: 12px;">
+        <button class="btn-scan" onclick="scanDevices('scanResultsSetup')" id="btnScanSetup">
+          <i class="mdi mdi-radar"></i> Scan for Nest Devices
+        </button>
+        <div id="scanResultsSetup" style="display: none;" class="scan-panel"></div>
+      </div>
+      <div id="registerSection" style="display:none">
+        <h2>Register Device</h2>
+        <ol>
+          <li>On your Nest thermostat, go to <strong>Settings &rarr; Nest App</strong></li>
+          <li>Select <strong>Get Entry Key</strong> to generate a pairing code</li>
+          <li>Enter the 7-character code shown on screen</li>
+        </ol>
+        <form id="registerForm" style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <input type="text" id="entryCode" placeholder="ABC-1234" maxlength="8" class="form-input" required />
+          <button type="submit" class="btn-primary">Register</button>
+        </form>
+        <div id="registerResult"></div>
+      </div>
     </div>
   </div>
 
@@ -544,23 +654,68 @@
   <script>
     const BASE_PATH = document.body.dataset.ingressPath || '';
     const pendingTargets = {};
+    // Declare before first loadDevices() call — let is not initialized until declaration runs
+    let _ssePending = false;
+    let _scanActive = false;  // true while scan results are displayed; pauses auto-refresh
     loadDevices();
+    loadConfig();
     // Fallback poll in case SSE disconnects
     setInterval(loadDevices, 30000);
 
     // SSE: server pushes events when device state changes
-    let _ssePending = false;
     function connectSSE() {
       const es = new EventSource(BASE_PATH + '/api/events');
       es.onmessage = function() {
         // If user has active interaction, defer
         if (activePopover) { _ssePending = true; return; }
         for (const k in scheduleCache) { if (scheduleCache[k].dirty) { _ssePending = true; return; } }
+        if (_scanActive) { _ssePending = true; return; }
         loadDevices();
       };
       es.onerror = function() { es.close(); setTimeout(connectSSE, 5000); };
     }
     connectSSE();
+
+    async function loadConfig() {
+      try {
+        const r = await fetch(BASE_PATH + '/api/config');
+        const cfg = await r.json();
+        const urlEl = document.getElementById('cloudregisterurl');
+        const badgeEl = document.getElementById('pairingBadge');
+        const hintEl = document.getElementById('pairingHint');
+
+        if (urlEl) urlEl.textContent = cfg.cloudregisterurl || '';
+        if (badgeEl) {
+          const secure = cfg.require_device_pairing;
+          badgeEl.innerHTML = secure
+            ? '<span class="pairing-badge secure"><i class="mdi mdi-lock"></i> Secure</span>'
+            : '<span class="pairing-badge open"><i class="mdi mdi-lock-open-variant"></i> Open</span>';
+        }
+        if (hintEl) {
+          hintEl.textContent = cfg.require_device_pairing
+            ? 'Entry key required to connect'
+            : 'Any Nest device connects automatically';
+        }
+        const regSection = document.getElementById('registerSection');
+        if (regSection) regSection.style.display = cfg.require_device_pairing ? '' : 'none';
+      } catch (e) {
+        const urlEl = document.getElementById('cloudregisterurl');
+        if (urlEl) urlEl.textContent = 'Unavailable';
+      }
+    }
+
+    function copyCloudUrl() {
+      const val = document.getElementById('cloudregisterurl').textContent;
+      if (!val || val === 'Loading...' || val === 'Unavailable') return;
+      navigator.clipboard.writeText(val).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="mdi mdi-check"></i> Copied';
+          setTimeout(() => { btn.innerHTML = orig; }, 1500);
+        }
+      });
+    }
 
     function toggleSetup() {
       document.getElementById('setupToggle').classList.toggle('open');
@@ -621,6 +776,15 @@
       _refreshTimers.forEach(t => clearTimeout(t));
       // Poll at 2s, 5s, 10s to catch device responses
       _refreshTimers = [2000, 5000, 10000].map(ms => setTimeout(loadDevices, ms));
+    }
+
+    function copyApiKey(serial, btn) {
+      const d = lastDevices && lastDevices.find(function(x) { return x.serial === serial; });
+      if (!d || !d.api_key) return;
+      navigator.clipboard.writeText(d.api_key).then(function() {
+        btn.innerHTML = '<i class="mdi mdi-check"></i>';
+        setTimeout(function() { btn.innerHTML = '<i class="mdi mdi-content-copy"></i>'; }, 1000);
+      });
     }
 
     async function sendCommand(serial, command, value) {
@@ -1167,7 +1331,8 @@
       lastDevices = devices;
       const el = document.getElementById('deviceList');
       if (!devices.length) {
-        el.innerHTML = '<div class="empty-state"><i class="mdi mdi-thermostat-box"></i>No devices yet.<br>Click "Add a new device" to get started.</div>';
+        const ingressPath = document.body.dataset.ingressPath || '';
+        el.innerHTML = '<div class="empty-state"><img src="' + ingressPath + '/nle-icon.png" alt="No Longer Evil">No devices yet.<br>Click \u201cAdd a new device\u201d to get started.<br><br><button class="btn-scan" onclick="scanDevices(\'scanResultsEmpty\')"><i class="mdi mdi-radar"></i> Scan for Nest Devices</button><div id="scanResultsEmpty" style="display:none;text-align:left;margin-top:12px;"></div></div>';
         return;
       }
       el.innerHTML = '<div class="devices">' + devices.map(d => {
@@ -1312,6 +1477,7 @@
               '<div>' +
                 '<h3>' + esc(d.name || S) + '</h3>' +
                 '<div class="card-serial">' + esc(S) + '</div>' +
+                (d.api_key ? '<div class="card-serial" style="margin-top:2px" title="Device api_key — needed to configure via local API">api_key: ' + esc(d.api_key) + ' <button class="btn-icon" style="font-size:11px;padding:1px 4px;vertical-align:middle" onclick="copyApiKey(' + q + ', this)" title="Copy api_key"><i class="mdi mdi-content-copy"></i></button></div>' : '') +
                 ls +
               '</div>' +
             '</div>' +
@@ -1346,7 +1512,9 @@
       }).join('') + '</div>';
     }
 
-    async function loadDevices() {
+    async function loadDevices(force) {
+      if (!force && _scanActive) return;
+      if (force) _scanActive = false;  // manual refresh clears scan results
       try {
         const r = await fetch(BASE_PATH + '/api/devices');
         const data = await r.json();
@@ -1369,6 +1537,136 @@
         if (j.success) loadDevices();
         else alert('Failed: ' + (j.error || 'Unknown error'));
       } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    // --- Nest network scan ---
+
+    async function scanDevices(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.style.display = '';
+      container.innerHTML = '<p style="color:var(--text2);font-size:13px;display:flex;align-items:center;gap:6px"><i class="mdi mdi-loading mdi-spin"></i> Scanning network...</p>';
+      // Disable all scan buttons while running
+      document.querySelectorAll('.btn-scan').forEach(function(b) { b.disabled = true; });
+      try {
+        const r = await fetch(BASE_PATH + '/api/scan-network', {method: 'POST'});
+        const data = await r.json();
+        if (data.error) {
+          container.innerHTML = '<p class="msg-error">' + esc(data.error) + '</p>';
+          _scanActive = false;
+          return;
+        }
+        _scanActive = true;  // keep auto-refresh paused while results are visible
+        renderScanResults(container, data);
+      } catch (err) {
+        _scanActive = false;
+        container.innerHTML = '<p class="msg-error">Scan failed: ' + esc(err.message) + '</p>';
+      } finally {
+        document.querySelectorAll('.btn-scan').forEach(function(b) { b.disabled = false; });
+      }
+    }
+
+    function renderScanResults(container, data) {
+      const devices = data.devices || [];
+      if (!devices.length) {
+        container.innerHTML = '<p style="color:var(--text2);font-size:13px;">No Nest devices found on ' + esc(data.subnet) + '.</p>';
+        return;
+      }
+      container.innerHTML =
+        '<p style="font-size:12px;color:var(--text3);margin-bottom:8px;">Found ' + devices.length + ' device' + (devices.length !== 1 ? 's' : '') + ' on ' + esc(data.subnet) + '</p>' +
+        '<div>' +
+        devices.map(function(d) {
+          const rowId = 'scan-row-' + d.ip.replace(/\./g, '-');
+          return '<div class="scan-device-row" id="' + rowId + '">' +
+            '<div class="scan-device-ip">' + esc(d.ip) + '</div>' +
+            '<div class="scan-device-info">' +
+              (d.device_name ? '<div class="scan-device-name">' + esc(d.device_name) + '</div>' : '') +
+              '<div class="scan-device-url">' + esc(d.cloudregisterurl || '(none)') + '</div>' +
+            '</div>' +
+            '<div class="scan-device-actions">' +
+              (d.configured
+                ? '<span class="scan-status ok"><i class="mdi mdi-check-circle"></i> Configured</span>'
+                : '<button class="btn-secondary" onclick="configureDevice(\'' + d.ip + '\', \'' + rowId + '\')"><i class="mdi mdi-cog-outline"></i> Configure</button>'
+              ) +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div>';
+    }
+
+    async function configureDevice(ip, rowId) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+      const actionsEl = row.querySelector('.scan-device-actions');
+      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:12px;color:var(--text2)"><i class="mdi mdi-loading mdi-spin"></i></span>';
+      try {
+        const r = await fetch(BASE_PATH + '/api/configure-nest', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ip})
+        });
+        const j = await r.json();
+        if (j.success) {
+          if (actionsEl) actionsEl.innerHTML = '<span class="scan-status ok"><i class="mdi mdi-check-circle"></i> Configured \u2014 ' + esc(j.device_name || ip) + '</span>';
+          const urlEl = row.querySelector('.scan-device-url');
+          if (urlEl) urlEl.textContent = 'Now pointing to this server';
+        } else if (j.auth_required) {
+          // Try to auto-fill api_key by matching device name from scan row
+          const _scanRow = document.getElementById(rowId);
+          const _scanNameEl = _scanRow ? _scanRow.querySelector('.scan-device-name') : null;
+          const _scanName = _scanNameEl ? _scanNameEl.textContent.trim() : '';
+          const _knownDev = _scanName && lastDevices ? lastDevices.find(function(d){ return d.name === _scanName; }) : null;
+          const _prefill = (_knownDev && _knownDev.api_key) ? _knownDev.api_key : '';
+          if (actionsEl) actionsEl.innerHTML =
+            '<div>' +
+              '<p style="font-size:12px;color:var(--text2);margin-bottom:6px;">Device requires api_key <span style="font-size:11px;color:var(--text3)">(find it in the device card)</span></p>' +
+              '<div class="scan-serial-row">' +
+                '<input type="text" class="scan-serial-input" id="serial-' + rowId + '" placeholder="Device api_key" value="' + esc(_prefill) + '">' +
+                '<button class="btn-secondary" onclick="configureWithSerial(\'' + ip + '\', \'' + rowId + '\')">Retry</button>' +
+              '</div>' +
+            '</div>';
+        } else {
+          if (actionsEl) actionsEl.innerHTML = '<span class="scan-status err"><i class="mdi mdi-alert-circle"></i> ' + esc(j.error || 'Failed') + '</span>';
+        }
+      } catch (err) {
+        if (actionsEl) actionsEl.innerHTML = '<span class="scan-status err"><i class="mdi mdi-alert-circle"></i> Error: ' + esc(err.message) + '</span>';
+      }
+    }
+
+    async function configureWithSerial(ip, rowId) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+      const serialInput = document.getElementById('serial-' + rowId);
+      const serial = serialInput ? serialInput.value.trim() : '';
+      if (!serial) {
+        if (serialInput) { serialInput.focus(); serialInput.style.borderColor = '#dc2626'; }
+        return;
+      }
+      const actionsEl = row.querySelector('.scan-device-actions');
+      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:12px;color:var(--text2)"><i class="mdi mdi-loading mdi-spin"></i></span>';
+      try {
+        const r = await fetch(BASE_PATH + '/api/configure-nest', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ip, api_key: serial})
+        });
+        const j = await r.json();
+        if (j.success) {
+          if (actionsEl) actionsEl.innerHTML = '<span class="scan-status ok"><i class="mdi mdi-check-circle"></i> Configured \u2014 ' + esc(j.device_name || ip) + '</span>';
+          const urlEl = row.querySelector('.scan-device-url');
+          if (urlEl) urlEl.textContent = 'Now pointing to this server';
+        } else {
+          const errMsg = j.error || 'Failed';
+          if (actionsEl) actionsEl.innerHTML =
+            '<div>' +
+              '<span class="scan-status err"><i class="mdi mdi-alert-circle"></i> ' + esc(errMsg) + '</span>' +
+              '<div class="scan-serial-row" style="margin-top:6px">' +
+                '<input type="text" class="scan-serial-input" id="serial-' + rowId + '" placeholder="Device api_key" value="' + esc(serial) + '">' +
+                '<button class="btn-secondary" onclick="configureWithSerial(\'' + ip + '\', \'' + rowId + '\')">Retry</button>' +
+              '</div>' +
+            '</div>';
+        }
+      } catch (err) {
+        if (actionsEl) actionsEl.innerHTML = '<span class="scan-status err"><i class="mdi mdi-alert-circle"></i> Error: ' + esc(err.message) + '</span>';
+      }
     }
   </script>
 </body>

@@ -16,10 +16,29 @@ from aiohttp import web
 
 from nolongerevil.config.environment import settings
 from nolongerevil.lib.logger import get_logger
-from nolongerevil.lib.serial_parser import extract_serial_from_request
+from nolongerevil.lib.serial_parser import (
+    extract_basic_auth_password,
+    extract_serial_from_basic_auth,
+    extract_serial_from_request,
+)
 from nolongerevil.services.sqlmodel_service import SQLModelService
 
 logger = get_logger(__name__)
+
+# Module-level cache of device api_keys (Basic Auth passwords).
+# Re-captured on every transport request so the value stays current.
+# In-memory only; repopulated within minutes of server restart as devices reconnect.
+_device_api_keys: dict[str, str] = {}
+
+
+def get_device_api_key(serial: str) -> str | None:
+    """Return the cached api_key for a device (its Basic Auth password).
+
+    This is the credential required as ``api_key`` when configuring the device
+    via its local HTTP API (``POST /cgi-bin/api/settings``).
+    """
+    return _device_api_keys.get(serial)
+
 
 # Auth tiers stored on request["device_auth_tier"]
 TIER_PAIRED = "paired"
@@ -49,6 +68,15 @@ def create_device_auth_middleware() -> Callable[
         request: web.Request,
         handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
     ) -> web.StreamResponse:
+        # Capture api_key from Basic Auth on every request, regardless of mode.
+        # This runs before any early returns so open-mode devices are also covered.
+        _auth = request.headers.get("Authorization")
+        if _auth:
+            _serial_from_auth = extract_serial_from_basic_auth(_auth)
+            _password = extract_basic_auth_password(_auth)
+            if _serial_from_auth and _password:
+                _device_api_keys[_serial_from_auth] = _password
+
         # Open mode: skip all auth checks, treat every device as paired
         if not settings.require_device_pairing:
             request["device_auth_tier"] = TIER_PAIRED
