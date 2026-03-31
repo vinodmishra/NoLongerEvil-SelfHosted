@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Server configuration
     api_origin: str = Field(
-        default="http://localhost",
+        default="http://localhost:8000",
         description="Base URL for thermostat connections",
     )
     server_host: str = Field(
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
         description="Host/IP to bind the server",
     )
     server_port: int = Field(
-        default=443,
+        default=8000,
         description="Port for thermostat connections",
     )
     control_host: str = Field(
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         description="Host/IP to bind control API server",
     )
     control_port: int = Field(
-        default=8081,
+        default=8082,
         description="Port for control API (dashboard/automation)",
     )
 

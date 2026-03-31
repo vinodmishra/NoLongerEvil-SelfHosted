@@ -12,6 +12,7 @@ from nolongerevil.config.environment import settings
 from nolongerevil.integrations.mqtt.helpers import get_device_name
 from nolongerevil.lib.logger import get_logger
 from nolongerevil.lib.types import DeviceObject
+from nolongerevil.middleware.device_auth import get_device_api_key
 from nolongerevil.services.device_availability import DeviceAvailability
 from nolongerevil.services.device_state_service import DeviceStateService
 from nolongerevil.services.sqlmodel_service import SQLModelService
@@ -47,6 +48,7 @@ def format_device_status(
     last_seen = device_availability.get_last_seen(serial)
     status = {
         "serial": serial,
+        "api_key": get_device_api_key(serial),
         "is_available": device_availability.is_available(serial),
         "last_seen": last_seen.isoformat() if last_seen else None,
         "name": get_device_name(device_values, shared_values, serial),
@@ -275,6 +277,26 @@ async def handle_notify_device(request: web.Request) -> web.Response:
     )
 
 
+async def handle_config(_request: web.Request) -> web.Response:
+    """Handle GET /api/config - server configuration for the dashboard.
+
+    Returns non-sensitive config values the dashboard needs to display
+    provisioning info and current pairing mode.
+
+    Returns:
+        JSON response with api_origin, cloudregisterurl, require_device_pairing,
+        and entry_key_ttl_seconds.
+    """
+    return web.json_response(
+        {
+            "api_origin": settings.api_origin,
+            "cloudregisterurl": f"{settings.api_origin}/entry",
+            "require_device_pairing": settings.require_device_pairing,
+            "entry_key_ttl_seconds": settings.entry_key_ttl_seconds,
+        }
+    )
+
+
 async def handle_stats(request: web.Request) -> web.Response:
     """Handle GET /api/stats - get server statistics.
 
@@ -466,6 +488,7 @@ def create_status_routes(
     app["device_availability"] = device_availability
 
     app.router.add_get("/status", handle_status)
+    app.router.add_get("/api/config", handle_config)
     app.router.add_get("/api/devices", handle_devices)
     app.router.add_get("/api/schedule", handle_schedule)
     app.router.add_get("/api/events", handle_sse)
