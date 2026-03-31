@@ -21,6 +21,7 @@ def build_climate_discovery_payload(
     device_name: str,
     topic_prefix: str,
     shared_values: dict[str, Any],
+    device_values: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build Home Assistant climate discovery payload.
 
@@ -37,13 +38,27 @@ def build_climate_discovery_payload(
         serial: Device serial
         device_name: Human-readable device name
         topic_prefix: MQTT topic prefix
-        shared_values: Shared object values (used to derive current mode)
+        shared_values: Shared object values (used to derive current mode and can_cool)
+        device_values: Device object values (fallback for capability flags)
 
     Returns:
         Discovery payload dictionary
     """
     # Derive mode from shared_values
     ha_mode = nest_mode_to_ha(shared_values.get("target_temperature_type"))
+
+    # Capability flags: shared object takes precedence over device object
+    dv = device_values or {}
+    can_cool = shared_values.get("can_cool", dv.get("can_cool", True))
+    can_heat = shared_values.get("can_heat", dv.get("can_heat", True))
+    has_fan = shared_values.get("has_fan", dv.get("has_fan", False))
+    available_modes: list[HaMode] = [HaMode.OFF]
+    if can_heat:
+        available_modes.append(HaMode.HEAT)
+    if can_cool:
+        available_modes.append(HaMode.COOL)
+    if can_heat and can_cool:
+        available_modes.append(HaMode.HEAT_COOL)
 
     payload: dict[str, Any] = {
         # Unique identifier
@@ -79,25 +94,31 @@ def build_climate_discovery_payload(
         # HVAC mode (heat, cool, heat_cool, off)
         "mode_command_topic": f"{topic_prefix}/{serial}/ha/mode/set",
         "mode_state_topic": f"{topic_prefix}/{serial}/ha/mode",
-        "modes": HaMode.all(),
+        "modes": available_modes,
         # HVAC action (heating, cooling, idle, fan, off)
         "action_topic": f"{topic_prefix}/{serial}/ha/action",
-        # Fan mode (on, auto)
-        "fan_mode_command_topic": f"{topic_prefix}/{serial}/ha/fan_mode/set",
-        "fan_mode_state_topic": f"{topic_prefix}/{serial}/ha/fan_mode",
-        "fan_modes": HaFanMode.all(),
-        # Preset modes (home, away, eco)
-        "preset_mode_command_topic": f"{topic_prefix}/{serial}/ha/preset/set",
-        "preset_mode_state_topic": f"{topic_prefix}/{serial}/ha/preset",
-        "preset_modes": HaPreset.all(),
-        # Min/max temperature in Celsius (typical Nest range)
-        "min_temp": 9,
-        "max_temp": 32,
-        # Optimistic mode
-        "optimistic": False,
-        # QoS
-        "qos": 1,
     }
+
+    # Fan mode - only advertised when the device has a fan
+    if has_fan:
+        payload["fan_mode_command_topic"] = f"{topic_prefix}/{serial}/ha/fan_mode/set"
+        payload["fan_mode_state_topic"] = f"{topic_prefix}/{serial}/ha/fan_mode"
+        payload["fan_modes"] = HaFanMode.all()
+
+    payload.update(
+        {
+            "preset_mode_command_topic": f"{topic_prefix}/{serial}/ha/preset/set",
+            "preset_mode_state_topic": f"{topic_prefix}/{serial}/ha/preset",
+            "preset_modes": HaPreset.all(),
+            # Min/max temperature in Celsius (typical Nest range)
+            "min_temp": 9,
+            "max_temp": 32,
+            # Optimistic mode
+            "optimistic": False,
+            # QoS
+            "qos": 1,
+        }
+    )
 
     # Mode-specific temperature topics
     for topic in MODE_TEMPERATURE_TOPICS.get(ha_mode, ()):
@@ -521,7 +542,7 @@ def get_all_discovery_configs(
     # Climate entity (main thermostat control) - mode-aware for temperature topics
     climate_topic = f"{discovery_prefix}/climate/nest_{serial}/thermostat/config"
     climate_payload = build_climate_discovery_payload(
-        serial, device_name, topic_prefix, shared_values
+        serial, device_name, topic_prefix, shared_values, device_values
     )
     configs.append((climate_topic, climate_payload))
 

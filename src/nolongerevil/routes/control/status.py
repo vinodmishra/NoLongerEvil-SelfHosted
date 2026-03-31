@@ -94,14 +94,21 @@ def format_device_status(
         "has_leaf": device_values.get("leaf", False),
         "software_version": device_values.get("current_version"),
         "temperature_scale": device_values.get("temperature_scale", "C"),
-        # Capabilities (from device bucket, default True for heat/cool per Nest convention)
+        # Capabilities (shared object takes precedence; device object is fallback)
+        # Default True for heat/cool per Nest convention
         "capabilities": {
-            "can_heat": device_values.get("can_heat", True),
-            "can_cool": device_values.get("can_cool", True),
-            "has_fan": device_values.get("has_fan", False),
-            "has_emer_heat": device_values.get("has_emer_heat", False),
-            "has_humidifier": device_values.get("has_humidifier", False),
-            "has_dehumidifier": device_values.get("has_dehumidifier", False),
+            "can_heat": shared_values.get("can_heat", device_values.get("can_heat", True)),
+            "can_cool": shared_values.get("can_cool", device_values.get("can_cool", True)),
+            "has_fan": shared_values.get("has_fan", device_values.get("has_fan", False)),
+            "has_emer_heat": shared_values.get(
+                "has_emer_heat", device_values.get("has_emer_heat", False)
+            ),
+            "has_humidifier": shared_values.get(
+                "has_humidifier", device_values.get("has_humidifier", False)
+            ),
+            "has_dehumidifier": shared_values.get(
+                "has_dehumidifier", device_values.get("has_dehumidifier", False)
+            ),
         },
         # Eco mode state (device bucket)
         "eco_mode": device_values.get("eco", {}).get("mode")

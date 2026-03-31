@@ -136,15 +136,20 @@ async def set_mode(
 
     # Validate device capabilities
     device_obj = state_service.get_object(serial, f"device.{serial}")
-    if device_obj:
-        dv = device_obj.value
-        if target_mode == "heat" and not dv.get("can_heat", True):
+    shared_obj = state_service.get_object(serial, f"shared.{serial}")
+    if device_obj or shared_obj:
+        dv = device_obj.value if device_obj else {}
+        sv = shared_obj.value if shared_obj else {}
+        can_heat = sv.get("can_heat", dv.get("can_heat", True))
+        can_cool = sv.get("can_cool", dv.get("can_cool", True))
+        has_emer_heat = sv.get("has_emer_heat", dv.get("has_emer_heat", False))
+        if target_mode == "heat" and not can_heat:
             raise CommandError("Device does not support heating (can_heat=false)")
-        if target_mode == "cool" and not dv.get("can_cool", True):
+        if target_mode == "cool" and not can_cool:
             raise CommandError("Device does not support cooling (can_cool=false)")
-        if target_mode == "range" and not (dv.get("can_heat", True) and dv.get("can_cool", True)):
+        if target_mode == "range" and not (can_heat and can_cool):
             raise CommandError("Range mode requires both heating and cooling capability")
-        if target_mode == "emergency" and not dv.get("has_emer_heat", False):
+        if target_mode == "emergency" and not has_emer_heat:
             raise CommandError("Device does not have emergency heat (has_emer_heat=false)")
 
     return {"target_temperature_type": target_mode}
@@ -191,10 +196,16 @@ async def set_fan(
     Returns:
         Updated values
     """
+    device_obj = state_service.get_object(serial, f"device.{serial}")
+    shared_obj = state_service.get_object(serial, f"shared.{serial}")
+    dv = device_obj.value if device_obj else {}
+    sv = shared_obj.value if shared_obj else {}
+    if not sv.get("has_fan", dv.get("has_fan", False)):
+        raise CommandError("Device does not have a fan (has_fan=false)")
+
     if isinstance(value, str):
         if value.lower() == "on":
             # Use stored fan duration preference (default 60 minutes)
-            device_obj = state_service.get_object(serial, f"device.{serial}")
             duration_minutes = 60  # default
             if device_obj:
                 duration_minutes = device_obj.value.get("fan_timer_duration_minutes", 60)
