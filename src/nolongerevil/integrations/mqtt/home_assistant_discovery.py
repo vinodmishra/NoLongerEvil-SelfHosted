@@ -105,18 +105,20 @@ def build_climate_discovery_payload(
         payload["fan_mode_state_topic"] = f"{topic_prefix}/{serial}/ha/fan_mode"
         payload["fan_modes"] = HaFanMode.all()
 
-    payload.update({
-        "preset_mode_command_topic": f"{topic_prefix}/{serial}/ha/preset/set",
-        "preset_mode_state_topic": f"{topic_prefix}/{serial}/ha/preset",
-        "preset_modes": HaPreset.all(),
-        # Min/max temperature in Celsius (typical Nest range)
-        "min_temp": 9,
-        "max_temp": 32,
-        # Optimistic mode
-        "optimistic": False,
-        # QoS
-        "qos": 1,
-    })
+    payload.update(
+        {
+            "preset_mode_command_topic": f"{topic_prefix}/{serial}/ha/preset/set",
+            "preset_mode_state_topic": f"{topic_prefix}/{serial}/ha/preset",
+            "preset_modes": HaPreset.all(),
+            # Min/max temperature in Celsius (typical Nest range)
+            "min_temp": 9,
+            "max_temp": 32,
+            # Optimistic mode
+            "optimistic": False,
+            # QoS
+            "qos": 1,
+        }
+    )
 
     # Mode-specific temperature topics
     for topic in MODE_TEMPERATURE_TOPICS.get(ha_mode, ()):
